@@ -25,6 +25,15 @@ class HttpTester(object):
         '/uchicago/cs': 'http://www.cs.uchicago.edu/',
     }
 
+    """
+    List of nonexistent paths
+    """
+    nonexistent_paths = [
+        '/stuff.html',
+        '/foo',
+        '/images/uchicago/log.png',
+    ]
+
     def __init__(self, server_class, server_port):
         self.server_class = server_class
         self.server_port = server_port
@@ -65,6 +74,28 @@ class HttpTester(object):
             except IOError as e:
                 print('Got io error in redirect')
                 print('Error: {}'.format(str(e)))
+
+    def check_nonexistent_paths(self):
+        for path in self.nonexistent_paths:
+            try:
+                res = requests.get('{}/{}'.format(self.http_host, path))
+                assert res.status_code == 404
+                assert len(res.text) == 0
+            except IOError as e:
+                print('Got exception when trying to get nonexistent path {}'.format(path))
+                print(e)
+
+    def check_nonallowed_methods(self):
+        for path in self.expected_resources:
+            try:
+                res = requests.post('{}/{}'.format(self.http_host, path), data = {'key':'value'})
+                assert res.status_code == 403
+            except IOError as e:
+                print('Got exception when trying to handle non-allowed method on {}'.format(path))
+                print(e)
+
+    def check_multiple_connections(self):
+        pass
 
     def destroy_server(self):
         self.server_process.kill()
