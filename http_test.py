@@ -114,4 +114,6 @@ tester = HttpTester(
 tester.create_server()
 tester.check_expected_resources()
 tester.check_expected_redirects()
+tester.check_nonexistent_paths()
+tester.check_nonallowed_methods()
 tester.destroy_server()
