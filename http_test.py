@@ -69,6 +69,19 @@ class HttpTester(object):
             except AssertionError:
                 print('Got assertion error on path {} with expected status code {} and actual status code {}'.format(url_path, 200, res.status_code))
 
+    def check_head_expected_resources(self):
+        for resource in self.expected_resources:
+            try:
+                url_path = '{}/{}'.format(self.http_host, resource)
+                res = requests.head(url_path)
+                assert res.status_code == 200
+                assert len(res.text)
+            except IOError as e:
+                print('Got io error in getting expected resources')
+                print('Error: {}'.format(str(e)))
+            except AssertionError:
+                print('Got assertion error on head path {} with expected status code {} and actual status code {} and expected len 0'.format(url_path, 200, res.status_code))
+
     def check_expected_redirects(self):
         for redirect in self.expected_redirects:
             try:
@@ -87,7 +100,7 @@ class HttpTester(object):
                 url_path = '{}/{}'.format(self.http_host, path)
                 res = requests.get(url_path)
                 assert res.status_code == 404
-                assert len(res.text) == 0
+                # assert len(res.text) == 0
             except IOError as e:
                 print('Got exception when trying to get nonexistent path {}'.format(path))
                 print(e)
