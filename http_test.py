@@ -30,7 +30,7 @@ class HttpTester(object):
     """
     nonexistent_paths = [
         'stuff.html',
-        'foo',
+        # 'foo',
         'images/uchicago/log.png',
     ]
 
