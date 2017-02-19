@@ -2,6 +2,7 @@ import argparse
 import subprocess
 import requests
 import time
+import os
 
 
 STATIC_RESOURCES = 'www'
@@ -49,10 +50,11 @@ class HttpTester(object):
         print('starting server with command')
         print(server_start_command)
         try:
-            self.server_process = subprocess.Popen(server_start_command)
-            print('Got server process')
-            print(self.server_process.pid)
-            time.sleep(0.1)
+            with open(os.devnull, 'w') as fp:
+                self.server_process = subprocess.Popen(server_start_command, stdout=fp)
+                print('Got server process')
+                print(self.server_process.pid)
+                time.sleep(0.5)
         except Exception as e:
             print('got exception when trying to open server process')
             print(e)
@@ -75,7 +77,7 @@ class HttpTester(object):
                 url_path = '{}/{}'.format(self.http_host, resource)
                 res = requests.head(url_path)
                 assert res.status_code == 200
-                assert len(res.text)
+                assert len(res.text) == 0
             except IOError as e:
                 print('Got io error in getting expected resources')
                 print('Error: {}'.format(str(e)))
@@ -171,5 +173,6 @@ try:
     tester.check_nonexistent_paths()
     tester.check_nonallowed_methods()
     tester.check_head_works_same()
+    print('server done')
 finally:
     tester.destroy_server()
